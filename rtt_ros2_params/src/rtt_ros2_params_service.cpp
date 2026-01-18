@@ -64,6 +64,12 @@ RosParamService::RosParamService(RTT::TaskContext * owner)
   .arg("value", "The value of the parameter to set");
 
   addOperation(
+    "declareParameter", &RosParamService::declareParameter, this, RTT::ClientThread)
+  .doc("Try to declare a parameter to the node parameter server and set its value.")
+  .arg("name", "Name of the parameter to set")
+  .arg("default_value", "The default value of the parameter to declare");
+
+  addOperation(
     "setOrDeclareParameter", &RosParamService::setOrDeclareParameter, this, RTT::ClientThread)
   .doc("Sets a parameter to the node parameter server and eventually declares it")
   .arg("name", "Name of the parameter to set")
@@ -147,6 +153,41 @@ bool RosParamService::setParameter(
   return true;
 }
 
+bool RosParamService::declareParameter(
+  const std::string & name,
+  const rclcpp::ParameterValue & default_value=rclcpp::ParameterValue())
+{
+  RTT::Logger::In in(getName());
+
+  RTT::log(RTT::Debug) <<
+    "Declaring the parameter \"" << name << "\"" <<
+    RTT::endlog();
+
+  auto rosnode = rtt_ros2_node::getNode(getOwner());
+  if (nullptr == rosnode) {
+    RTT::log(RTT::Error) <<
+      "No ROS node service from package rtt_ros2_node loaded into this "
+      "component or as a global service." <<
+      RTT::endlog();
+    return false;
+  }
+
+  if (!rosnode->has_parameter(name)) {
+    // Create new parameter
+    RTT::log(RTT::Info) <<
+      "The parameter did not exist" <<
+      RTT::endlog();
+    rosnode->declare_parameter(name, default_value);
+    return true;
+  }
+  else{
+    RTT::log(RTT::Error) <<
+      "Failed to declare ROS parameter " << name << ": " <<
+      "has already been declared" << RTT::endlog();
+    return false;
+  }
+}
+
 bool RosParamService::setOrDeclareParameter(
   const std::string & name,
   const rclcpp::ParameterValue & value)
@@ -171,7 +212,10 @@ bool RosParamService::setOrDeclareParameter(
     RTT::log(RTT::Info) <<
       "The parameter did not exist" <<
       RTT::endlog();
-    rosnode->declare_parameter(name);
+    // ROS 2 Kilted requires a default value for declare_parameter
+    // Since we're declaring with the intended value, just return success
+    rosnode->declare_parameter(name, value);
+    return true;
   }
 
   // Update the parameter

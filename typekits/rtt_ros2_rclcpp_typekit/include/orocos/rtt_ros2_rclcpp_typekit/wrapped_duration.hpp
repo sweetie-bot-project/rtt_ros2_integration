@@ -15,8 +15,10 @@
 #ifndef OROCOS__RTT_ROS2_RCLCPP_TYPEKIT__WRAPPED_DURATION_HPP_
 #define OROCOS__RTT_ROS2_RCLCPP_TYPEKIT__WRAPPED_DURATION_HPP_
 
+#include <chrono>
 #include <utility>
 
+#include "builtin_interfaces/msg/duration.hpp"
 #include "rclcpp/duration.hpp"
 
 namespace rtt_ros2_rclcpp_typekit
@@ -26,14 +28,20 @@ namespace rtt_ros2_rclcpp_typekit
 class WrappedDuration : public rclcpp::Duration
 {
 public:
-  WrappedDuration();
+  WrappedDuration() : rclcpp::Duration(0, 0) {}
   WrappedDuration(const rclcpp::Duration & duration)  // NOLINT(runtime/explicit)
   : rclcpp::Duration(duration) {}
   WrappedDuration(rclcpp::Duration && duration) noexcept  // NOLINT(runtime/explicit)
   : rclcpp::Duration(std::move(duration)) {}
-  template<typename ... Args>
-  WrappedDuration(Args && ... args)  // NOLINT(runtime/explicit)
-  : rclcpp::Duration(std::forward<Args>(args)...) {}
+  // Constructor from seconds and nanoseconds
+  WrappedDuration(int32_t seconds, uint32_t nanoseconds)  // NOLINT(runtime/explicit)
+  : rclcpp::Duration(seconds, nanoseconds) {}
+  // Constructor from nanoseconds
+  WrappedDuration(int64_t nanoseconds)  // NOLINT(runtime/explicit)
+  : rclcpp::Duration(std::chrono::nanoseconds(nanoseconds)) {}
+  // Constructor from builtin_interfaces message
+  WrappedDuration(const builtin_interfaces::msg::Duration & duration_msg)  // NOLINT(runtime/explicit)
+  : rclcpp::Duration(duration_msg) {}
   WrappedDuration & operator=(const rclcpp::Duration & duration)
   {
     static_cast<rclcpp::Duration &>(*this) = duration;

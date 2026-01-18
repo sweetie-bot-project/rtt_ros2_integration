@@ -17,8 +17,10 @@
 
 #include <atomic>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <utility>
+#include <vector>
 
 #include "rcl/guard_condition.h"
 #include "rclcpp/context.hpp"
@@ -93,30 +95,62 @@ public:
     return 1u;
   }
 
-  bool add_to_wait_set(rcl_wait_set_t * wait_set) override
+  void add_to_wait_set(rcl_wait_set_t & wait_set) override
   {
     std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
-
-    const rcl_ret_t ret = rcl_wait_set_add_guard_condition(
-      wait_set, &rcl_guard_condition_, nullptr);
-    return RCL_RET_OK == ret;
+    rcl_wait_set_add_guard_condition(&wait_set, &rcl_guard_condition_, nullptr);
   }
 
-  bool is_ready(rcl_wait_set_t *) override
+  bool is_ready(const rcl_wait_set_t &) override
   {
     return has_work_;
   }
 
-  void execute() override
+  std::shared_ptr<void> take_data() override
+  {
+    return nullptr;
+  }
+
+  std::shared_ptr<void> take_data_by_entity_id(size_t) override
+  {
+    return nullptr;
+  }
+
+  void execute(const std::shared_ptr<void> &) override
   {
     std::lock_guard<std::mutex> lock(execute_mutex_);
     if (!func_) {return;}
 
     has_work_ = false;
     if (!func_()) {
-      // eventually there is more work for us...
       trigger();
     }
+  }
+
+  void set_on_ready_callback(std::function<void(size_t, int)> callback) override
+  {
+    std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
+    on_ready_callback_ = callback;
+  }
+
+  void clear_on_ready_callback() override
+  {
+    std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
+    on_ready_callback_ = nullptr;
+  }
+
+  void set_on_new_event_callback(
+    rcl_event_callback_t callback,
+    const void * user_data)
+  {
+    std::lock_guard<std::recursive_mutex> lock(reentrant_mutex_);
+    (void)callback;
+    (void)user_data;
+  }
+
+  std::vector<rclcpp::TimerBase::SharedPtr> get_timers() const
+  {
+    return {};
   }
 
 private:
@@ -125,8 +159,9 @@ private:
 
   std::function<bool(void)> func_;
   rclcpp::Context::SharedPtr context_;
+  std::function<void(size_t, int)> on_ready_callback_;
 
-  std::atomic<bool> has_work_;
+  std::atomic<bool> has_work_{false};
   rcl_guard_condition_t rcl_guard_condition_;
 };
 

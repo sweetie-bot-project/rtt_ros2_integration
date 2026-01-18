@@ -29,9 +29,6 @@ using namespace RTT::types;  // NOLINT(build/namespaces)
 namespace rtt_ros2_rclcpp_typekit
 {
 
-WrappedDuration::WrappedDuration()
-: rclcpp::Duration(0) {}
-
 DurationTypeInfo::DurationTypeInfo()
 : PrimitiveTypeInfo<WrappedDuration, true>("/rclcpp/Duration")
 {}
