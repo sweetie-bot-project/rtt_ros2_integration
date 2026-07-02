@@ -17,7 +17,7 @@ endif()
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 # if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -58,6 +58,7 @@ orocos_configure_executable(test_ros_transport)
 target_link_libraries(test_ros_transport
   rtt_ros2::rtt_ros2
   rtt_ros2_node::rtt_ros2_node
+  rtt_ros2_topics::rtt_ros2_topics  # provides the rtt_ros2_topics/protocol_id.h include path
   rtt_ros2_test_msgs::rtt_test_msgs_typekit
 )
 target_compile_definitions(test_ros_transport

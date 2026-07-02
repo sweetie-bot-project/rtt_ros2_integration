@@ -12,6 +12,16 @@
   <test_depend>rtt_ros2_interfaces</test_depend>
   <test_depend>test_msgs</test_depend>
 
+  <!-- Runtime dependencies of the generated typekit/transport plugins
+       (see the rtt_ros2_plugin_depends ament resource). They must be
+       exec_depend so that colcon adds them to the runtime environment of
+       downstream test packages. -->
+  <exec_depend>rtt_ros2_primitives_typekit</exec_depend>
+  <exec_depend>rtt_ros2_builtin_interfaces</exec_depend>
+  <exec_depend>rtt_ros2_node</exec_depend>
+  <exec_depend>rtt_ros2_topics</exec_depend>
+  <exec_depend>rtt_ros2_services</exec_depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
