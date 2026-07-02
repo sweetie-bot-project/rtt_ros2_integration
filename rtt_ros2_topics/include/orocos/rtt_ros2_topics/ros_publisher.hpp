@@ -30,7 +30,6 @@
 #include "rtt/base/ChannelElement.hpp"
 #include "rtt/base/PortInterface.hpp"
 
-#include "rtt_ros2/detail/rclcpp_version.h"
 #include "rtt_ros2_topics/utilities.hpp"
 #include "rtt_ros2_topics/waitable.hpp"
 
@@ -112,15 +111,11 @@ public:
 
   bool publish()
   {
-#if rclcpp_VERSION_GTE(0, 8, 1)
     if (publisher_->can_loan_messages()) {
       return publish_impl_loaned_message();
     } else {
       return publish_impl();
     }
-#else
-    return publish_impl();
-#endif
   }
 
 protected:
@@ -145,7 +140,6 @@ protected:
     }
   }
 
-#if rclcpp_VERSION_GTE(0, 8, 1)
   bool publish_impl_loaned_message()
   {
     while (true) {
@@ -162,7 +156,6 @@ protected:
       publisher_->publish(std::move(message));
     }
   }
-#endif
 
 private:
   rclcpp::Node::SharedPtr node_;
