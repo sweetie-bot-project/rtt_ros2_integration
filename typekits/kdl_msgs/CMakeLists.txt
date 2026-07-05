@@ -24,6 +24,16 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   DEPENDENCIES std_msgs
 )
 
+# Hand-written KDL <-> kdl_msgs conversions header (needs orocos_kdl). Installed
+# into the same include/<pkg>/<pkg> layout rosidl uses for generated headers, so
+# it resolves as <kdl_msgs/conversions.hpp>.
+find_package(orocos_kdl_vendor REQUIRED)
+install(
+  FILES include/kdl_msgs/conversions.hpp
+  DESTINATION include/${PROJECT_NAME}/${PROJECT_NAME}
+)
+ament_export_dependencies(orocos_kdl_vendor)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
