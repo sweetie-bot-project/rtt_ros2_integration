@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>kdl_typekit</name>
+  <version>0.0.1</version>
+  <description>
+    ROS 2 port of the Orocos kdl_typekit (orocos/rtt_geometry): an RTT typekit
+    that registers the KDL C++ geometric and kinematic types (Frame, Rotation,
+    Twist, Wrench, Vector, JntArray, Chain, Tree, Jacobian, Joint, Segment) with
+    the Orocos type system so they can be used as operation and port types.
+    CORBA transport is omitted (CORBA is disabled in this build).
+  </description>
+  <maintainer email="fsdfur@gmail.com">mutronics</maintainer>
+  <license>LGPL-2.1</license>
+  <url type="website">https://github.com/orocos/rtt_geometry</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rtt_ros2</depend>
+  <depend>orocos_kdl_vendor</depend>
+  <depend>eigen</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
