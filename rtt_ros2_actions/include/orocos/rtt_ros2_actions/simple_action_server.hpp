@@ -177,6 +177,19 @@ public:
   }
 
   /**
+   * @brief Set the ROS action name advertised by start().
+   *
+   * Supports the usual ROS name expansion, e.g. "~/controller/joint_state"
+   * resolves relative to the node name. Must be called before start();
+   * an empty string (default) means the server name passed to the
+   * constructor is used as-is.
+   */
+  void setActionName(const std::string & action_name)
+  {
+    action_name_ = action_name;
+  }
+
+  /**
    * @brief Create the ROS action server.
    * @param publish_feedback Unused, kept for interface compatibility with
    *        the ROS 1 implementation (feedback is only published explicitly
@@ -191,7 +204,7 @@ public:
     if (action_server_.connected()) {
       return true;
     }
-    return action_server_.connect(owner_);
+    return action_server_.connect(owner_, action_name_);
   }
 
   //! Disconnect from ROS. Active and pending goals are aborted by rclcpp_action.
@@ -523,6 +536,7 @@ private:
   RTTActionServer<ActionT> action_server_;
   RTT::TaskContext * owner_ = nullptr;
   boost::shared_ptr<RTT::Service> service_;
+  std::string action_name_;
 
   RTT::Operation<GoalResponse(GoalUUID, std::shared_ptr<const Goal>)> goal_operation_;
   RTT::Operation<CancelResponse(GoalHandleSharedPtr)> cancel_operation_;
