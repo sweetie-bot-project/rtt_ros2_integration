@@ -71,8 +71,11 @@ public:
 
     RTT::log(RTT::Debug) <<
       "Using node '" << node->get_fully_qualified_name() << "'" <<
-      " to create a new ROS topic stream for port " << port->getName() <<
-      " owned by component " << owner->getName() << RTT::endlog();
+      " to create a new ROS topic stream for port " << port->getName();
+    if (owner != nullptr) {
+      RTT::log() << " owned by component " << owner->getName();
+    }
+    RTT::log() << RTT::endlog();
 
     RTT::base::ChannelElementBase::shared_ptr channel;
     if (is_sender) {
